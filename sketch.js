@@ -19,8 +19,50 @@ class G2048 {
     do {
       x = Math.floor(Math.random() * 4)
       y = Math.floor(Math.random() * 4)
-    } while (this.matx[x][y] !== 0) 
-    this.matx[x][y] = 1
+    } while (this.matx[y][x] !== 0) 
+    this.matx[y][x] = 1
+  }
+
+  move(h, v) {
+    let aux = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
+    let d = h === 0 ? v : h
+    let e = d > 0 ? 0 : 3
+    let a, b, c
+    for (let y = 0; y < 4; y++) {
+      a = e
+      c = 0
+      for (let x = 0; x < 4; x++) {
+        b = v === 0 ? this.matx[y][x * d + e] : this.matx[x * d + e][y]
+        if (b > 0) {
+          if (b !== c) {
+            v === 0 ? aux[y][a] = b : aux[a][y] = b
+            c = b
+            a += d
+          } else {
+            v === 0 ? aux[y][a - d]++ : aux[a - d][y]++
+            c = 0
+          }
+        }
+      }
+    }
+    this.matx = aux
+    this.spawn()
+  }
+
+  left() {
+    this.move(1, 0)
+  }
+
+  down() {
+    this.move(0, -1)
+  }
+
+  up() {
+    this.move(0, 1)
+  }
+
+  right() {
+    this.move(-1, 0)
   }
 
   draw() {
@@ -34,15 +76,15 @@ class G2048 {
     textAlign(CENTER, CENTER)
     translate(15, 15)
     fill('#bbada0')
-    rect(0, 0, 500, 500, 5)
+    rect(0, 0, 500, 500, 7)
     for (let y = 0; y < 4; y++) {
       for (let x = 0; x < 4; x++) {
-        let val = this.matx[x][y]
+        let val = this.matx[y][x]
         let xoff = x * (wid + mar) + mar
         let yoff = y * (hei + mar) + mar
         fill(this.colr[val])
-        rect(xoff, yoff, hei, wid, 2)
-        fill('#776e65')
+        rect(xoff, yoff, hei, wid, 4)
+        fill(val > 2 ? '#f9f6f2' : '#776e65')
         if (val > 0) text(Math.pow(2, val), xoff + wid/2, yoff + hei/2)
       }
     }
@@ -72,4 +114,12 @@ function windowResized() {
 }
 
 function draw() {
+  g2048.draw()
+}
+
+function keyPressed() {
+  if (key === 'H' || key === 'A' || key === '%') g2048.left()
+  if (key === 'J' || key === 'S' || key === '(') g2048.down()
+  if (key === 'K' || key === 'W' || key === '&') g2048.up()
+  if (key === 'L' || key === 'D' || key === "'") g2048.right()
 }
